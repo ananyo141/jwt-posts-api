@@ -20,11 +20,7 @@ const asyncWrapper =
       if (error instanceof mongoose.Error.CastError) {
         _next(new CustomError.BadRequestError("Invalid user id"));
       }
-      _next(
-        new CustomError.InternalServerError(
-          `Something went wrong ${error.message}`
-        )
-      );
+      _next(new CustomError.InternalServerError(error.message));
     }
   };
 

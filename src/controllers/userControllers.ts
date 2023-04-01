@@ -46,7 +46,7 @@ export const putUser = asyncWrapper(
 
 export const deleteUser = asyncWrapper(
   async (_req: Request, _res: Response, _next: NextFunction) => {
-    const user = await UserModel.deleteOne(_req.user);
+    const user = await UserModel.deleteOne({ _id: _req.user });
     if (!user) _next(new CustomError.NotFoundError("User not found"));
     else _res.status(StatusCodes.NO_CONTENT).json(user);
   }

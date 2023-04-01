@@ -9,6 +9,6 @@ import {
 const postRouter = express.Router();
 
 postRouter.route("/").get(getPosts).post(createPost);
-postRouter.route("/:id").delete(deletePost).put(putPost);
+postRouter.route("/:postId").delete(deletePost).put(putPost);
 
 export default postRouter;

@@ -23,13 +23,11 @@ export const loginController = asyncWrapper(
     // passwords match, return access token and refresh token
     if (await user.comparePassword(password, _next)) {
       const accessToken = genAccessToken(user);
-      _res.status(StatusCodes.OK).json({
-        name: user.name,
-        email: user.email,
-        accessToken: accessToken,
-      });
-      // passwords do not match
+      _res
+        .status(StatusCodes.OK)
+        .json({ accessToken: accessToken, refreshToken: accessToken });
     } else {
+      // passwords do not match
       return _next(new CustomErrors.UnauthorizedError("Invalid password"));
     }
   }
@@ -52,7 +50,7 @@ export const registerController = asyncWrapper(
       const accessToken = genAccessToken(user);
       _res
         .status(StatusCodes.CREATED)
-        .json({ name: user.name, email: user.email, accessToken: accessToken });
+        .json({ accessToken: accessToken, user: user });
     }
   }
 );
