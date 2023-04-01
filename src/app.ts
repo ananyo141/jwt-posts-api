@@ -20,9 +20,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Routes
-app.use("/users", userRouter);
-app.use("/posts", postRouter);
-app.use("/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/posts", postRouter);
+app.use("/api/v1/auth", authRouter);
 
 // Custom Handlers
 app.use(routeNotFound);

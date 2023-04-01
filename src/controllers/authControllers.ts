@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { genAccessToken } from "../utils/jwt";
+import { genAuthTokens } from "../utils/jwt";
 
 import User from "../models/userModel";
 import * as CustomErrors from "../errors";
@@ -22,10 +22,10 @@ export const loginController = asyncWrapper(
 
     // passwords match, return access token and refresh token
     if (await user.comparePassword(password, _next)) {
-      const accessToken = genAccessToken(user);
+      const [accessToken, refreshToken] = genAuthTokens(user);
       _res
         .status(StatusCodes.OK)
-        .json({ accessToken: accessToken, refreshToken: accessToken });
+        .json({ accessToken: accessToken, refreshToken: refreshToken });
     } else {
       // passwords do not match
       return _next(new CustomErrors.UnauthorizedError("Invalid password"));
@@ -47,10 +47,14 @@ export const registerController = asyncWrapper(
       return _next(new CustomErrors.BadRequestError("User already exists"));
     else {
       user = await User.create(_req.body);
-      const accessToken = genAccessToken(user);
+      const [accessToken, refreshToken] = genAuthTokens(user);
       _res
         .status(StatusCodes.CREATED)
-        .json({ accessToken: accessToken, user: user });
+        .json({
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          userData: user,
+        });
     }
   }
 );
