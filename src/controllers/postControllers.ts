@@ -25,20 +25,31 @@ export const createPost = asyncWrapper(
 export const patchPost = asyncWrapper(
   async (_req: Request, _res: Response, _next: NextFunction) => {
     const post = await PostModel.findById(_req.params.postId);
-    if (!post) _next(new CustomError.NotFoundError("Post not found"));
-    else {
-      post.set(_req.body);
-      await post.save();
-      _res.status(StatusCodes.OK).json(post);
-    }
+    if (!post) return _next(new CustomError.NotFoundError("Post not found"));
+    if (!post.createdBy.equals(_req.user))
+      return _next(
+        new CustomError.ForbiddenError(
+          "You are not authorized to edit this post"
+        )
+      );
+    post.set(_req.body);
+    await post.save();
+    _res.status(StatusCodes.OK).json(post);
   }
 );
 
 export const deletePost = asyncWrapper(
   async (_req: Request, _res: Response, _next: NextFunction) => {
-    const post = await PostModel.deleteOne({ _id: _req.params.postId });
-    if (!post) _next(new CustomError.NotFoundError("Post not found"));
-    else _res.status(StatusCodes.NO_CONTENT).json(post);
+    const post = await PostModel.findById(_req.params.postId);
+    if (!post) return _next(new CustomError.NotFoundError("Post not found"));
+    if (!post.createdBy.equals(_req.user))
+      return _next(
+        new CustomError.ForbiddenError(
+          "You are not authorized to edit this post"
+        )
+      );
+    await PostModel.findByIdAndDelete(_req.params.postId);
+    _res.status(StatusCodes.NO_CONTENT).json(post);
   }
 );
 

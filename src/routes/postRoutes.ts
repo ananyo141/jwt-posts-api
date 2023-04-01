@@ -1,4 +1,5 @@
 import express from "express";
+import { authenticateToken } from "../middleware/authenticateToken";
 import {
   getPosts,
   createPost,
@@ -9,6 +10,9 @@ import {
 } from "../controllers/postControllers";
 
 const postRouter = express.Router();
+
+// use token authentication for all post routes
+postRouter.use(authenticateToken);
 
 // posts routes
 postRouter.route("/").get(getPosts).post(createPost);
