@@ -7,7 +7,12 @@ import { asyncWrapper } from "../utils";
 
 export const getPosts = asyncWrapper(
   async (_req: Request, _res: Response, _next: NextFunction) => {
-    const posts = await PostModel.find();
+	// Show detailed posts with user info
+    let posts = await PostModel.find();
+    posts = await PostModel.populate(posts, {
+      path: "createdBy comments.sentBy comments.liked",
+      select: "name email",
+    });
     _res.status(StatusCodes.OK).json(posts);
   }
 );
