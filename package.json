@@ -1,11 +1,12 @@
 {
   "name": "varlyq-assignment",
   "version": "1.0.0",
-  "main": "app.ts",
+  "main": "src/app.ts",
   "author": "Ananyobrata Pal <ananyo141@gmail.com>",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "start": "tsc && node build/app.js",
     "dev": "nodemon ./src/app.ts"
   },
   "dependencies": {

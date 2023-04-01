@@ -20,14 +20,12 @@ export const genAccessToken = (user: UserDocument | SerializedUser) => {
           userId: (user as SerializedUser).userId,
           userEmail: (user as SerializedUser).userEmail,
         };
-  console.log(userToken);
   return jwt.sign(userToken, process.env.JWT_ACCESS_SECRET!, {
     expiresIn: process.env.JWT_ACCESS_TIME ?? "15m",
   });
 };
 
 export const genRefreshToken = async (user: UserDocument | SerializedUser) => {
-  console.log(user);
   const userToken =
     typeof user !== "object"
       ? serializeUser(user)
@@ -68,7 +66,6 @@ export const verifyRefreshToken = async (
 
   // verify if in store
   const stored_token = await redis_client.get(deserializedUser.userId);
-  console.log(stored_token);
   if (stored_token === null) throw new Error("Token is not in store");
   if (stored_token !== token) throw new Error("Token is not same as in store");
   return deserializedUser;
@@ -76,7 +73,6 @@ export const verifyRefreshToken = async (
 
 export const logoutToken = async (userId: string, prevToken: string) => {
   // remove refresh token
-  console.log(userId);
   await redis_client.del(userId.toString());
   // blacklist previous token
   await redis_client.set("BL_" + userId, prevToken);
