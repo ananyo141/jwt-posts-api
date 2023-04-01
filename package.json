@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start": "tsc && node build/app.js",
+    "start": "./node_modules/typescript/bin/tsc && node build/app.js",
     "dev": "nodemon ./src/app.ts"
   },
   "dependencies": {
