@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { genAuthTokens } from "../utils/jwt";
+import { genAccessToken, genRefreshToken, logoutToken } from "../utils/jwt";
 
 import User from "../models/userModel";
 import * as CustomErrors from "../errors";
@@ -22,7 +22,8 @@ export const loginController = asyncWrapper(
 
     // passwords match, return access token and refresh token
     if (await user.comparePassword(password, _next)) {
-      const [accessToken, refreshToken] = genAuthTokens(user);
+      const accessToken = genAccessToken(user);
+      const refreshToken = await genRefreshToken(user);
       _res
         .status(StatusCodes.OK)
         .json({ accessToken: accessToken, refreshToken: refreshToken });
@@ -47,20 +48,20 @@ export const registerController = asyncWrapper(
       return _next(new CustomErrors.BadRequestError("User already exists"));
     else {
       user = await User.create(_req.body);
-      const [accessToken, refreshToken] = genAuthTokens(user);
-      _res
-        .status(StatusCodes.CREATED)
-        .json({
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-          userData: user,
-        });
+      const accessToken = genAccessToken(user);
+      const refreshToken = await genRefreshToken(user);
+      _res.status(StatusCodes.CREATED).json({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        userData: user,
+      });
     }
   }
 );
 
 export const logoutController = asyncWrapper(
   async (_req: Request, _res: Response) => {
+	await logoutToken(_req.user, _req.access_token!);
     _res.status(StatusCodes.OK).json(_req.body);
   }
 );

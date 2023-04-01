@@ -1,7 +1,7 @@
-import redis from "redis";
+import { createClient } from "redis";
 
-const redis_client = redis.createClient({
-  url: process.env.REDIS_HOST!
+const redis_client = createClient({
+  url: process.env.REDIS_HOST!,
 });
 
 redis_client.on("error", (err) => {
@@ -9,7 +9,7 @@ redis_client.on("error", (err) => {
 });
 
 redis_client.on("connect", () => {
-  console.log("Connected to Redis");
+  console.log("Connecting to Redis");
 });
 
 redis_client.connect();
