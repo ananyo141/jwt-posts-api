@@ -17,7 +17,7 @@ const PostSchema = new mongoose.Schema(
       trim: true,
       maxlength: [50, "Title cannot be more than 50 characters"],
     },
-    content: {
+    message: {
       type: String,
       required: [true, "Please provide content"],
       trim: true,

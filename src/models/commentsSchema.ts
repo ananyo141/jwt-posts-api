@@ -24,7 +24,6 @@ const CommentsSchema = new Schema(
       },
     ],
   },
-  { timestamps: true, _id: false }
 );
 
 export default CommentsSchema;
