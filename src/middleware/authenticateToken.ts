@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import { jwtUtils } from "../utils";
 
 import * as CustomError from "../errors";
 
@@ -11,12 +11,13 @@ export const authenticateToken = (
   const authHeader = _req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (token == null)
-    throw new CustomError.UnauthorizedError("No token provided");
+  if (token == null) throw new CustomError.ForbiddenError("No token provided");
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, (err: any, user: any) => {
-    if (err) throw new CustomError.UnauthorizedError(err.message);
-    _req.user = user.userId;
+  try {
+    const decoded = jwtUtils.verifyAccessToken(token);
+    _req.user = decoded.userId;
     _next();
-  });
+  } catch (err: any) {
+    _next(new CustomError.UnauthorizedError(err.message));
+  }
 };
