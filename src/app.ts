@@ -9,6 +9,9 @@ import userRouter from "./routes/userRoutes";
 import postRouter from "./routes/postRoutes";
 import authRouter from "./routes/authRoutes";
 
+import { routeNotFound } from "./middleware/routeNotFound";
+import { errorHandler } from "./middleware/errorHandler";
+
 const app = express();
 
 // Middleware
@@ -20,6 +23,10 @@ app.use(cors());
 app.use("/users", userRouter);
 app.use("/posts", postRouter);
 app.use("/auth", authRouter);
+
+// Custom Handlers
+app.use(routeNotFound);
+app.use(errorHandler);
 
 const port = process.env.PORT || 8000;
 const start = async () => {
