@@ -12,20 +12,34 @@ export const serializeUser = (user: UserDocument): SerializedUser => {
   return { userId: user._id, userEmail: user.email };
 };
 
-export const genAccessToken = (user: UserDocument) => {
-  const userToken = serializeUser(user);
+export const genAccessToken = (user: UserDocument | SerializedUser) => {
+  const userToken =
+    typeof user !== "object"
+      ? serializeUser(user)
+      : {
+          userId: (user as SerializedUser).userId,
+          userEmail: (user as SerializedUser).userEmail,
+        };
+  console.log(userToken);
   return jwt.sign(userToken, process.env.JWT_ACCESS_SECRET!, {
     expiresIn: process.env.JWT_ACCESS_TIME ?? "15m",
   });
 };
 
-export const genRefreshToken = async (user: UserDocument) => {
-  const userToken = serializeUser(user);
+export const genRefreshToken = async (user: UserDocument | SerializedUser) => {
+  console.log(user);
+  const userToken =
+    typeof user !== "object"
+      ? serializeUser(user)
+      : {
+          userId: (user as SerializedUser).userId,
+          userEmail: (user as SerializedUser).userEmail,
+        };
   const refreshToken = jwt.sign(userToken, process.env.JWT_REFRESH_SECRET!, {
     expiresIn: process.env.JWT_REFRESH_TIME ?? "7d",
   });
 
-  await redis_client.set(user._id.toString(), refreshToken);
+  await redis_client.set(userToken.userId.toString(), refreshToken);
   return refreshToken;
 };
 
@@ -54,15 +68,16 @@ export const verifyRefreshToken = async (
 
   // verify if in store
   const stored_token = await redis_client.get(deserializedUser.userId);
+  console.log(stored_token);
   if (stored_token === null) throw new Error("Token is not in store");
-  if (JSON.parse(stored_token).token !== token)
-    throw new Error("Token is not same as in store");
+  if (stored_token !== token) throw new Error("Token is not same as in store");
   return deserializedUser;
 };
 
 export const logoutToken = async (userId: string, prevToken: string) => {
   // remove refresh token
-  await redis_client.del(userId);
+  console.log(userId);
+  await redis_client.del(userId.toString());
   // blacklist previous token
   await redis_client.set("BL_" + userId, prevToken);
 };

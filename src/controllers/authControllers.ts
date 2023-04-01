@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { genAccessToken, genRefreshToken, logoutToken } from "../utils/jwt";
+import {
+  genAccessToken,
+  genRefreshToken,
+  logoutToken,
+  verifyRefreshToken,
+} from "../utils/jwt";
 
 import User from "../models/userModel";
 import * as CustomErrors from "../errors";
@@ -59,9 +64,27 @@ export const registerController = asyncWrapper(
   }
 );
 
+export const refreshTokensController = asyncWrapper(
+  async (_req: Request, _res: Response, _next: NextFunction) => {
+    let deserializedUser = null;
+    try {
+      deserializedUser = await verifyRefreshToken(_req.body.refreshToken);
+    } catch (err: any) {
+      return _next(new CustomErrors.UnauthorizedError(err.message));
+    }
+    // await logoutToken(_req.user, _req.access_token!);
+    const accessToken = genAccessToken(deserializedUser);
+    const refreshToken = await genRefreshToken(deserializedUser);
+    _res.status(StatusCodes.OK).json({
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    });
+  }
+);
+
 export const logoutController = asyncWrapper(
   async (_req: Request, _res: Response) => {
-	await logoutToken(_req.user, _req.access_token!);
+    await logoutToken(_req.user, _req.access_token!);
     _res.status(StatusCodes.OK).json(_req.body);
   }
 );

@@ -12,13 +12,6 @@ export const getUsers = asyncWrapper(
   }
 );
 
-export const createUser = asyncWrapper(
-  async (_req: Request, _res: Response, _next: NextFunction) => {
-    const user = await UserModel.create(_req.body);
-    _res.status(StatusCodes.CREATED).json(user);
-  }
-);
-
 export const getUserInfo = asyncWrapper(
   async (_req: Request, _res: Response, _next: NextFunction) => {
     const user = await UserModel.findById(_req.user);
