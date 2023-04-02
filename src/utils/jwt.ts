@@ -14,8 +14,8 @@ export const serializeUser = (user: UserDocument): SerializedUser => {
 
 export const genAccessToken = (user: UserDocument | SerializedUser) => {
   const userToken =
-    typeof user !== "object"
-      ? serializeUser(user)
+    !user.hasOwnProperty("userId")
+      ? serializeUser(user as UserDocument)
       : {
           userId: (user as SerializedUser).userId,
           userEmail: (user as SerializedUser).userEmail,
