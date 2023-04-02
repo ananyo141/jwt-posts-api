@@ -27,8 +27,8 @@ export const genAccessToken = (user: UserDocument | SerializedUser) => {
 
 export const genRefreshToken = async (user: UserDocument | SerializedUser) => {
   const userToken =
-    typeof user !== "object"
-      ? serializeUser(user)
+    !user.hasOwnProperty("userId")
+      ? serializeUser(user as UserDocument)
       : {
           userId: (user as SerializedUser).userId,
           userEmail: (user as SerializedUser).userEmail,
@@ -36,7 +36,6 @@ export const genRefreshToken = async (user: UserDocument | SerializedUser) => {
   const refreshToken = jwt.sign(userToken, process.env.JWT_REFRESH_SECRET!, {
     expiresIn: process.env.JWT_REFRESH_TIME ?? "7d",
   });
-
   await redis_client.set(userToken.userId.toString(), refreshToken);
   return refreshToken;
 };
